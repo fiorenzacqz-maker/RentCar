@@ -73,3 +73,20 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 3. Klik **Mulai Rental** untuk mengubah status `confirmed` menjadi `ongoing`. Setelah itu customer dapat memproses pengembalian.
 
 Denda keterlambatan saat ini ditetapkan Rp100.000 per hari. Sistem menolak pengajuan jika mobil sudah memiliki booking aktif pada rentang tanggal yang bertabrakan. Fitur menggunakan tabel `bookings` dan `returns` yang sudah tersedia pada migration project.
+
+## Fitur Pembayaran dan Verifikasi
+
+### Alur customer
+1. Setelah mengajukan sewa mobil atau melalui **Dashboard Customer**, buka daftar **Booking Aktif Saat Ini** pada pesanan yang berstatus **Menunggu Pembayaran**.
+2. Klik **Batalkan** jika ingin membatalkan pesanan sebelum membayar (status booking otomatis berubah menjadi `cancelled`), atau klik **Bayar Sekarang** untuk melanjutkan pembayaran.
+3. Pilih metode pembayaran (**Transfer Bank** atau **QRIS / E-Wallet**). Jika memilih **QRIS / E-Wallet**, kode QRIS akan muncul otomatis di bawah pilihan metode.
+4. Unggah bukti pembayaran (`JPG`, `PNG`, `WEBP`, atau `PDF`) lalu klik **Kirim Bukti Pembayaran**.
+5. Sistem menyimpan data pembayaran dengan status `pending` (tampil sebagai **Menunggu Verifikasi** pada **Dashboard Customer** dan menu **Pembayaran**) hingga diperiksa oleh admin. Jika pembayaran ditolak, customer dapat mengunggah ulang bukti pembayaran melalui tombol **Bayar Ulang**.
+
+### Alur admin
+1. Login sebagai admin dan buka **Dashboard Admin**. Pada daftar **Booking Terbaru**, pesanan yang belum dibayar ditandai sebagai **BELUM BAYAR**, sedangkan pesanan yang sudah mengunggah bukti pembayaran berstatus `pending`.
+2. Buka menu **Verifikasi Pembayaran** untuk melihat daftar transaksi masuk beserta informasi nama mobil, penyewa, metode, nominal, dan tombol **Buka Bukti**.
+3. Periksa bukti transfer yang diunggah penyewa, lalu klik **Terima** untuk menyetujui pembayaran (status pembayaran berubah menjadi `verified` dan status booking otomatis menjadi `confirmed`) atau klik **Tolak** jika bukti tidak valid (`rejected` dan booking menjadi `cancelled`).
+4. Setelah pembayaran diterima dan status booking menjadi `confirmed`, admin dapat langsung menekan tombol **Mulai Rental** untuk mengubah status booking menjadi `ongoing`.
+
+Bukti pembayaran disimpan secara lokal pada direktori `storage/app/public/payments` (maksimal 1 GB) dan gambar kode QRIS ditempatkan pada `public/image/qris.png`. Fitur ini menggunakan tabel `payments` yang terhubung langsung dengan tabel `bookings`.

@@ -17,8 +17,10 @@ class HomepageController extends Controller
         // Ambil kategori mobil untuk filter
         $categories = CarCategory::orderBy('name', 'asc')->get();
 
-        // Ambil daftar mobil yang berstatus available dari database beserta relasi kategorinya
-        $cars = Car::with('category')
+        // Ambil daftar mobil yang berstatus available dari database beserta relasi kategori dan galeri foto
+        $cars = Car::with(['category', 'images'])
+            ->withAvg('reviews', 'rating')
+            ->withCount('reviews')
             ->where('status', 'available')
             ->orderBy('id', 'asc')
             ->get();

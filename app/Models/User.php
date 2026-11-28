@@ -53,9 +53,45 @@ class User extends Authenticatable
     /**
      * Check if user is admin.
      */
+    public const ROLE_ADMIN = 'admin';
+
+    public const ROLE_STAFF = 'staff';
+
+    public const ROLE_CUSTOMER = 'customer';
+
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->role === self::ROLE_ADMIN;
+    }
+
+    public function isStaff(): bool
+    {
+        return $this->role === self::ROLE_STAFF;
+    }
+
+    public function isCustomer(): bool
+    {
+        return $this->role === self::ROLE_CUSTOMER;
+    }
+
+    /**
+     * Admin atau petugas (pengguna yang mengelola operasional rental).
+     */
+    public function isStaffOrAdmin(): bool
+    {
+        return in_array($this->role, [self::ROLE_ADMIN, self::ROLE_STAFF], true);
+    }
+
+    /**
+     * Nama route dashboard sesuai role.
+     */
+    public function dashboardRoute(): string
+    {
+        return match ($this->role) {
+            self::ROLE_ADMIN => 'admin.dashboard',
+            self::ROLE_STAFF => 'staff.dashboard',
+            default => 'customer.dashboard',
+        };
     }
 
     /**

@@ -177,14 +177,38 @@
 
                     <button
                         type="button"
+                        onclick="fillCredentials('staff@rentcar.com', 'staff123')"
+                        class="p-2.5 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 rounded-xl text-left transition-all group cursor-pointer"
+                    >
+                        <div class="flex items-center gap-1.5 text-xs font-bold text-slate-700 group-hover:text-blue-600">
+                            <i data-lucide="user" class="w-3.5 h-3.5 text-blue-600"></i>
+                            <span>Akun Petugas</span>
+                        </div>
+                        <span class="text-[10px] text-slate-400 block mt-0.5">staff@rentcar.com</span>
+                    </button>
+
+                    <button
+                        type="button"
                         onclick="fillCredentials('kafka@gmail.com', 'password123')"
                         class="p-2.5 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 rounded-xl text-left transition-all group cursor-pointer"
                     >
                         <div class="flex items-center gap-1.5 text-xs font-bold text-slate-700 group-hover:text-blue-600">
                             <i data-lucide="user" class="w-3.5 h-3.5 text-blue-600"></i>
-                            <span>Akun Customer</span>
+                            <span>Akun Customer 1</span>
                         </div>
                         <span class="text-[10px] text-slate-400 block mt-0.5">kafka@gmail.com</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        onclick="fillCredentials('ahmad.rizky@gmail.com', 'password123')"
+                        class="p-2.5 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 rounded-xl text-left transition-all group cursor-pointer"
+                    >
+                        <div class="flex items-center gap-1.5 text-xs font-bold text-slate-700 group-hover:text-blue-600">
+                            <i data-lucide="user" class="w-3.5 h-3.5 text-blue-600"></i>
+                            <span>Akun Customer 2</span>
+                        </div>
+                        <span class="text-[10px] text-slate-400 block mt-0.5">ahmad.rizky@gmail.com</span>
                     </button>
                 </div>
             </div>

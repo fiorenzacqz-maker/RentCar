@@ -14,6 +14,8 @@ class DashboardController extends Controller
      */
     public function index(Request $request): View
     {
+        Booking::expireOverdue();
+
         /** @var \App\Models\User $user */
         $user = $request->user();
 

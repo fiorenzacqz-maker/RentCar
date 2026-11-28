@@ -386,6 +386,7 @@
             <div class="h-48 bg-slate-50 rounded-2xl flex items-center justify-center p-4">
                 <img id="modalImage" src="" alt="Mobil" class="max-h-40 w-auto object-contain">
             </div>
+            <div id="modalGallery" class="hidden flex items-center gap-2 overflow-x-auto pb-1"></div>
 
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs pt-2">
                 <div class="p-3 bg-slate-50 rounded-xl text-center">
@@ -426,8 +427,8 @@
                 Tutup
             </button>
             @auth
-                @if (in_array(auth()->user()->role, ['customer', 'admin'], true))
-                    <a id="modalRentalButton" data-rental-url="{{ route(auth()->user()->isAdmin() ? 'admin.rentals.create' : 'customer.rentals.create', ['car_id' => '__CAR_ID__']) }}" href="#" class="hidden px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-sm transition-colors items-center justify-center gap-2">
+                @if (in_array(auth()->user()->role, ['customer', 'admin', 'staff'], true))
+                    <a id="modalRentalButton" data-rental-url="{{ route(auth()->user()->isStaffOrAdmin() ? 'admin.rentals.create' : 'customer.rentals.create', ['car_id' => '__CAR_ID__']) }}" href="#" class="hidden px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-sm transition-colors items-center justify-center gap-2">
                         <i data-lucide="car-front" class="w-4 h-4"></i>
                         Rental Mobil Ini
                     </a>
@@ -529,8 +530,8 @@
         setCategoryFilter('all', document.querySelector('.category-tab[data-category="all"]'));
     }
 
-    // Modal Detail Mobil (Tampilan Saja)
-    function showCarDetailModal(name, brand, price, seats, transmission, category, image, year, plate, carId, carStatus) {
+    // Modal Detail Mobil (Tampilan Saja + Galeri Foto)
+    function showCarDetailModal(name, brand, price, seats, transmission, category, image, year, plate, carId, carStatus, triggerBtn) {
         document.getElementById('modalTitle').textContent = name;
         document.getElementById('modalCategory').textContent = category;
         document.getElementById('modalPrice').textContent = price;
@@ -539,6 +540,40 @@
         document.getElementById('modalImage').src = image;
         document.getElementById('modalYear').textContent = year || '-';
         document.getElementById('modalPlate').textContent = plate || '-';
+
+        // Render thumbnail galeri foto tambahan jika ada
+        const galleryContainer = document.getElementById('modalGallery');
+        if (galleryContainer) {
+            galleryContainer.innerHTML = '';
+            let galleryUrls = [];
+            try {
+                galleryUrls = triggerBtn && triggerBtn.dataset.gallery ? JSON.parse(triggerBtn.dataset.gallery) : [];
+            } catch (e) {
+                galleryUrls = [];
+            }
+
+            if (galleryUrls.length > 1) {
+                galleryContainer.classList.remove('hidden');
+                galleryUrls.forEach((url, idx) => {
+                    const thumb = document.createElement('button');
+                    thumb.type = 'button';
+                    thumb.className = `shrink-0 w-16 h-12 rounded-xl border-2 overflow-hidden bg-slate-50 p-1 cursor-pointer transition-all ${idx === 0 ? 'border-blue-600' : 'border-slate-200 hover:border-blue-400'}`;
+                    thumb.innerHTML = `<img src="${url}" alt="Foto ${idx + 1}" class="w-full h-full object-contain">`;
+                    thumb.onclick = () => {
+                        document.getElementById('modalImage').src = url;
+                        galleryContainer.querySelectorAll('button').forEach(b => {
+                            b.classList.remove('border-blue-600');
+                            b.classList.add('border-slate-200');
+                        });
+                        thumb.classList.remove('border-slate-200');
+                        thumb.classList.add('border-blue-600');
+                    };
+                    galleryContainer.appendChild(thumb);
+                });
+            } else {
+                galleryContainer.classList.add('hidden');
+            }
+        }
 
         const statusBadge = document.getElementById('modalCarStatus');
         const rentalButton = document.getElementById('modalRentalButton');

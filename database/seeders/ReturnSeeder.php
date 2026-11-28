@@ -63,6 +63,8 @@ class ReturnSeeder extends Seeder
                     'condition_description' => 'Kondisi mesin & bodi sangat baik. Terlambat 1 hari karena macet di jalur Puncak, denda disetujui penyewa.',
                     'late_days' => 1,
                     'late_fee' => 100000.00,
+                    'total_fine' => 100000.00,
+                    'fine_status' => 'unpaid',
                     'return_status' => 'completed',
                 ]
             );

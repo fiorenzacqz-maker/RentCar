@@ -27,7 +27,7 @@ class Payment extends Model
         'payment_method',
         'amount',
         'proof_image',
-        'payment_status',
+        'payment_status',   
         'paid_at',
     ];
 

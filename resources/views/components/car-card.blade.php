@@ -16,6 +16,10 @@
     $carPrice = $car->price_per_day;
     $carImgSrc = asset('storage/' . $car->image);
     $carStatus = $car->status === 'available' ? 'Tersedia' : ($car->status === 'maintenance' ? 'Perawatan' : 'Tidak Tersedia');
+    $galleryUrls = collect([$carImgSrc])
+        ->merge($car->images->map(fn ($img) => asset('storage/' . $img->image_path)))
+        ->unique()
+        ->values();
 @endphp
 
 <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col group h-full relative">
@@ -53,6 +57,18 @@
             <span class="text-xs text-slate-400 font-medium">/ hari</span>
         </div>
 
+        {{-- Rating & Ulasan --}}
+        @php $avgRating = $car->averageRating(); @endphp
+        <a href="{{ route('cars.show', $car) }}" class="mt-2 inline-flex items-center gap-1 text-xs text-slate-500 hover:text-blue-600">
+            @if ($avgRating)
+                <span class="text-amber-500">&#9733;</span>
+                <span class="font-bold text-slate-700">{{ number_format($avgRating, 1) }}</span>
+                <span>({{ $car->reviews_count ?? $car->reviews()->count() }} ulasan)</span>
+            @else
+                <span class="text-slate-400">Belum ada ulasan</span>
+            @endif
+        </a>
+
         {{-- Spesifikasi / Fitur (Kursi & Transmisi) --}}
         <div class="mt-4 pt-4 border-t border-slate-100 grid grid-cols-2 gap-2 text-xs font-medium text-slate-500">
             <div class="flex items-center gap-1.5">
@@ -69,15 +85,16 @@
         <div class="mt-5 pt-1 grid grid-cols-2 gap-2">
             <button
                 type="button"
-                onclick="showCarDetailModal('{{ addslashes($carName) }}', '{{ addslashes($car->brand) }}', 'Rp {{ number_format($carPrice, 0, ',', '.') }} / hari', '{{ $carSeats }} Kursi', '{{ $carTrans }}', '{{ addslashes($carCategory) }}', '{{ $carImgSrc }}', '{{ $car->year }}', '{{ $car->plate_number }}', '{{ $car->id }}', '{{ $car->status }}')"
+                data-gallery='@json($galleryUrls)'
+                onclick="showCarDetailModal('{{ addslashes($carName) }}', '{{ addslashes($car->brand) }}', 'Rp {{ number_format($carPrice, 0, ',', '.') }} / hari', '{{ $carSeats }} Kursi', '{{ $carTrans }}', '{{ addslashes($carCategory) }}', '{{ $carImgSrc }}', '{{ $car->year }}', '{{ $car->plate_number }}', '{{ $car->id }}', '{{ $car->status }}', this)"
                 class="w-full py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm rounded-xl transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer"
             >
                 <span>Lihat Detail</span>
             </button>
 
             @auth
-                @if (in_array(auth()->user()->role, ['customer', 'admin'], true) && $car->status === 'available')
-                    <a href="{{ route(auth()->user()->isAdmin() ? 'admin.rentals.create' : 'customer.rentals.create', ['car_id' => $car->id]) }}"
+                @if (in_array(auth()->user()->role, ['customer', 'admin', 'staff'], true) && $car->status === 'available')
+                    <a href="{{ route(auth()->user()->isStaffOrAdmin() ? 'admin.rentals.create' : 'customer.rentals.create', ['car_id' => $car->id]) }}"
                        class="w-full py-2.5 px-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-sm rounded-xl shadow-sm hover:shadow transition-all duration-150 flex items-center justify-center gap-2">
                         <i data-lucide="car-front" class="w-4 h-4"></i>
                         <span>Rental</span>

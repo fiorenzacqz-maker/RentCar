@@ -29,7 +29,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('staff123'),
                 'phone' => '081298765432',
                 'address' => 'Jl. Thamrin No. 12, Jakarta Pusat',
-                'role' => 'admin',
+                'role' => 'staff',
             ],
 
             // Customer Accounts

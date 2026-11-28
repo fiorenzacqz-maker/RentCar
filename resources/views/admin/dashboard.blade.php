@@ -10,10 +10,18 @@
             <h1 class="text-2xl font-black text-slate-900 tracking-tight">Dashboard Admin</h1>
             <p class="mt-1 text-sm text-slate-500">Selamat datang kembali, <strong>{{ Auth::user()->name }}</strong>. Berikut ringkasan operasional rental mobil hari ini.</p>
         </div>
-        <div>
-            <a href="{{ route('homepage') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all">
-                <i data-lucide="globe" class="w-3.5 h-3.5"></i>
-                <span>Lihat Website Utama</span>
+        <div class="flex flex-wrap gap-2">
+            <a href="{{ route('admin.cars.index') }}" class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl transition-all">
+                <i data-lucide="car" class="w-3.5 h-3.5 text-blue-600"></i>
+                <span>Kelola Mobil</span>
+            </a>
+            <a href="{{ route('admin.rentals.index') }}" class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl transition-all">
+                <i data-lucide="calendar-check" class="w-3.5 h-3.5 text-indigo-600"></i>
+                <span>Kelola Booking</span>
+            </a>
+            <a href="{{ route('admin.payments.index') }}" class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all">
+                <i data-lucide="check-square" class="w-3.5 h-3.5"></i>
+                <span>Verifikasi Pembayaran</span>
             </a>
         </div>
     </div>
@@ -134,11 +142,17 @@
                                 'completed' => 'bg-emerald-100 text-emerald-800',
                                 'cancelled' => 'bg-rose-100 text-rose-800',
                             ];
+
+                            $isUnpaid = $booking->booking_status === 'pending' && !$booking->payment;
+                            $badgeColor = $isUnpaid
+                                ? 'bg-slate-100 text-slate-600'
+                                : ($statusColors[$booking->booking_status] ?? 'bg-slate-100 text-slate-600');
+                            $badgeLabel = $isUnpaid ? 'Belum Bayar' : $booking->booking_status;
                         @endphp
-                        <span class="text-[10px] font-bold uppercase px-2 py-1 rounded-full {{ $statusColors[$booking->booking_status] ?? 'bg-slate-100 text-slate-600' }}">
-                            {{ $booking->booking_status }}
+                        <span class="text-[10px] font-bold uppercase px-2 py-1 rounded-full {{ $badgeColor }}">
+                            {{ $badgeLabel }}
                         </span>
-                        @if ($booking->booking_status === 'pending' || $booking->booking_status === 'confirmed')
+                        @if (($booking->booking_status === 'pending' && $booking->payment) || $booking->booking_status === 'confirmed')
                             <form method="POST" action="{{ route('admin.bookings.status', $booking) }}" class="shrink-0">
                                 @csrf
                                 @method('PATCH')

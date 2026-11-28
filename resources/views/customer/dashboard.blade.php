@@ -109,9 +109,22 @@
                                             'confirmed' => 'Dikonfirmasi',
                                             'ongoing' => 'Sedang Disewa',
                                         ];
+
+                                        $badgeColor = $statusColors[$booking->booking_status] ?? 'bg-slate-100 text-slate-600';
+                                        $badgeLabel = $statusLabels[$booking->booking_status] ?? $booking->booking_status;
+
+                                        if ($booking->booking_status === 'pending' && $booking->payment) {
+                                            if ($booking->payment->payment_status === 'pending') {
+                                                $badgeColor = 'bg-sky-100 text-sky-800';
+                                                $badgeLabel = 'Menunggu Verifikasi';
+                                            } elseif ($booking->payment->payment_status === 'rejected') {
+                                                $badgeColor = 'bg-rose-100 text-rose-800';
+                                                $badgeLabel = 'Pembayaran Ditolak';
+                                            }
+                                        }
                                     @endphp
-                                    <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full {{ $statusColors[$booking->booking_status] ?? 'bg-slate-100 text-slate-600' }}">
-                                        {{ $statusLabels[$booking->booking_status] ?? $booking->booking_status }}
+                                    <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full {{ $badgeColor }}">
+                                        {{ $badgeLabel }}
                                     </span>
                                 </div>
                                 <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
@@ -129,27 +142,65 @@
                                 </div>
                             </div>
 
-                            {{-- Payment Status --}}
-                            @if ($booking->payment)
-                                @php
-                                    $payColors = [
-                                        'pending' => 'text-amber-600',
-                                        'verified' => 'text-emerald-600',
-                                        'rejected' => 'text-rose-600',
-                                    ];
-                                    $payLabels = [
-                                        'pending' => 'Menunggu Verifikasi',
-                                        'verified' => 'Pembayaran Terverifikasi',
-                                        'rejected' => 'Pembayaran Ditolak',
-                                    ];
-                                @endphp
-                                <div class="text-right shrink-0">
-                                    <p class="text-[10px] font-bold uppercase {{ $payColors[$booking->payment->payment_status] ?? 'text-slate-500' }}">
-                                        {{ $payLabels[$booking->payment->payment_status] ?? $booking->payment->payment_status }}
-                                    </p>
-                                    <p class="text-[10px] text-slate-400">{{ $booking->payment->payment_method }}</p>
-                                </div>
-                            @endif
+                            {{-- Payment Status & Tombol Bayar Sekarang + Batalkan --}}
+                            <div class="sm:text-right shrink-0 flex flex-col sm:items-end gap-2">
+                                @if ($booking->payment)
+                                    @php
+                                        $payColors = [
+                                            'pending' => 'text-amber-600',
+                                            'verified' => 'text-emerald-600',
+                                            'paid' => 'text-emerald-600',
+                                            'rejected' => 'text-rose-600',
+                                        ];
+                                        $payLabels = [
+                                            'pending' => 'Menunggu Verifikasi',
+                                            'verified' => 'Pembayaran Terverifikasi',
+                                            'paid' => 'Pembayaran Terverifikasi',
+                                            'rejected' => 'Pembayaran Ditolak',
+                                        ];
+                                    @endphp
+                                    <div>
+                                        <p class="text-[10px] font-bold uppercase {{ $payColors[$booking->payment->payment_status] ?? 'text-slate-500' }}">
+                                            {{ $payLabels[$booking->payment->payment_status] ?? $booking->payment->payment_status }}
+                                        </p>
+                                        <p class="text-[10px] text-slate-400">{{ $booking->payment->payment_method }}</p>
+                                    </div>
+
+                                    @if ($booking->payment->payment_status === 'rejected')
+                                        <div class="flex items-center gap-2">
+                                            <a href="{{ route('customer.payments.create', $booking->id) }}"
+                                               class="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl shadow-sm transition-all">
+                                                <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                                                <span>Bayar Ulang</span>
+                                            </a>
+                                            <form action="{{ route('customer.bookings.cancel', $booking->id) }}" method="POST" onsubmit="return confirm('Yakin ingin membatalkan pesanan ini?')">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit" class="inline-flex items-center gap-1.5 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all cursor-pointer">
+                                                    <i data-lucide="x-circle" class="w-3.5 h-3.5"></i>
+                                                    <span>Batalkan</span>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @endif
+                                @elseif ($booking->booking_status === 'pending')
+                                    <div class="flex items-center gap-2">
+                                        <a href="{{ route('customer.payments.create', $booking->id) }}"
+                                           class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all">
+                                            <i data-lucide="credit-card" class="w-3.5 h-3.5"></i>
+                                            <span>Bayar Sekarang</span>
+                                        </a>
+                                        <form action="{{ route('customer.bookings.cancel', $booking->id) }}" method="POST" onsubmit="return confirm('Yakin ingin membatalkan pesanan ini?')">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="inline-flex items-center gap-1.5 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all cursor-pointer">
+                                                <i data-lucide="x-circle" class="w-3.5 h-3.5"></i>
+                                                <span>Batalkan</span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 @endforeach

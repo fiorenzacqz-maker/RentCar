@@ -50,7 +50,7 @@
                             </div>
                             <div class="text-left leading-tight">
                                 <span class="block text-xs font-bold text-slate-800 truncate max-w-[120px]">{{ Auth::user()->name }}</span>
-                                <span class="inline-block text-[10px] font-semibold uppercase px-1.5 py-0.2 rounded {{ Auth::user()->isAdmin() ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800' }}">
+                                <span class="inline-block text-[10px] font-semibold uppercase px-1.5 py-0.2 rounded {{ Auth::user()->isAdmin() ? 'bg-amber-100 text-amber-800' : (Auth::user()->isStaff() ? 'bg-sky-100 text-sky-800' : 'bg-emerald-100 text-emerald-800') }}">
                                     {{ Auth::user()->role }}
                                 </span>
                             </div>
@@ -116,7 +116,7 @@
                             </div>
                             <div>
                                 <span class="block text-sm font-bold text-slate-800">{{ Auth::user()->name }}</span>
-                                <span class="inline-block text-[10px] font-semibold uppercase px-1.5 py-0.2 rounded {{ Auth::user()->isAdmin() ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800' }}">
+                                <span class="inline-block text-[10px] font-semibold uppercase px-1.5 py-0.2 rounded {{ Auth::user()->isAdmin() ? 'bg-amber-100 text-amber-800' : (Auth::user()->isStaff() ? 'bg-sky-100 text-sky-800' : 'bg-emerald-100 text-emerald-800') }}">
                                     {{ Auth::user()->role }}
                                 </span>
                             </div>

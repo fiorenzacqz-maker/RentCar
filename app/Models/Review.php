@@ -43,6 +43,14 @@ class Review extends Model
     }
 
     /**
+     * Urutkan dari ulasan terbaru.
+     */
+    public function scopeLatestFirst($query)
+    {
+        return $query->orderByDesc('created_at')->orderByDesc('id');
+    }
+
+    /**
      * User who wrote this review.
      *
      * @return BelongsTo<User, $this>

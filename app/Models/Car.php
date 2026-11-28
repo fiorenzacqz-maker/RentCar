@@ -72,6 +72,17 @@ class Car extends Model
     }
 
     /**
+     * Rata-rata rating ulasan (null jika belum ada ulasan).
+     * Memakai hasil withAvg() bila tersedia agar tidak menambah query.
+     */
+    public function averageRating(): ?float
+    {
+        $avg = $this->reviews_avg_rating ?? $this->reviews()->avg('rating');
+
+        return $avg === null ? null : round((float) $avg, 1);
+    }
+
+    /**
      * Category of this car.
      *
      * @return BelongsTo<CarCategory, $this>
